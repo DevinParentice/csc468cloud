@@ -11,6 +11,8 @@ const dbo = require("../db/conn");
 // This help convert the id from string to ObjectId for the _id.
 const ObjectId = require("mongodb").ObjectId;
 
+// Hash passwords
+const bcrypt = require("bcrypt");
 
 // This section will help you get a list of all the records.
 recordRoutes.route("/record").get(function (req, res) {
@@ -28,23 +30,23 @@ recordRoutes.route("/record").get(function (req, res) {
 recordRoutes.route("/record/:id").get(function (req, res) {
 	let db_connect = dbo.getDb();
 	let myquery = { _id: ObjectId(req.params.id) };
-	db_connect
-		.collection("records")
-		.findOne(myquery, function (err, result) {
-			if (err) throw err;
-			res.json(result);
-		});
+	db_connect.collection("records").findOne(myquery, function (err, result) {
+		if (err) throw err;
+		res.json(result);
+	});
 });
 
 // This section will help you create a new record.
-recordRoutes.route("/record/add").post(function (req, response) {
+recordRoutes.route("/user/add").post(function (req, response) {
 	let db_connect = dbo.getDb();
+	console.log(req.body);
+	const hashed_password = bcrypt.hashSync(req.body.password, 10);
 	let myobj = {
-		person_name: req.body.person_name,
-		person_position: req.body.person_position,
-		person_level: req.body.person_level,
+		username: req.body.username,
+		email: req.body.email,
+		password: hashed_password,
 	};
-	db_connect.collection("records").insertOne(myobj, function (err, res) {
+	db_connect.collection("Users").insertOne(myobj, function (err, res) {
 		if (err) throw err;
 		response.json(res);
 	});
@@ -54,11 +56,12 @@ recordRoutes.route("/record/add").post(function (req, response) {
 recordRoutes.route("/update/:id").post(function (req, response) {
 	let db_connect = dbo.getDb();
 	let myquery = { _id: ObjectId(req.params.id) };
+	const hashed_password = bcrypt.hashSync(req.body.password, 10);
 	let newvalues = {
 		$set: {
-			person_name: req.body.person_name,
-			person_position: req.body.person_position,
-			person_level: req.body.person_level,
+			username: req.body.username,
+			email: req.body.email,
+			password: hashed_password,
 		},
 	};
 	db_connect

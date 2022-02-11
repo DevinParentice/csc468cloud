@@ -41,9 +41,13 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
 };
 
 UserSchema.methods.getSignedToken = function () {
-	return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-		expiresIn: process.env.JWT_EXPIRE,
-	});
+	return jwt.sign(
+		{ id: this._id, username: this.username },
+		process.env.JWT_SECRET,
+		{
+			expiresIn: process.env.JWT_EXPIRE,
+		}
+	);
 };
 
 const User = mongoose.model("User", UserSchema);

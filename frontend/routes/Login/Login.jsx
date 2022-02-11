@@ -31,8 +31,8 @@ export default function Login() {
 			);
 
 			localStorage.setItem("authToken", data.token);
-			console.log(data.username);
-			navigate("/");
+			// navigate("/");
+			window.location = "/";
 		} catch (error) {
 			console.log(error.response);
 			setError(error.response.data.error);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -8,6 +8,12 @@ export default function Signup() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
+
+	useEffect(() => {
+		if (localStorage.getItem("authToken")) {
+			window.location = "/";
+		}
+	}, []);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -26,8 +32,8 @@ export default function Signup() {
 			);
 
 			localStorage.setItem("authToken", data.token);
-
-			navigate("/");
+			// navigate("/");
+			window.location = "/";
 		} catch (error) {
 			setError(error.response.data.error);
 			setTimeout(() => {

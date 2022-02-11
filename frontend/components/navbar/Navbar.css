@@ -40,6 +40,10 @@ nav a {
 	margin-right: 4rem;
 }
 
+.button-clicked {
+	background-color: #c0bebe;
+}
+
 .user-icon {
 	vertical-align: text-top;
 }

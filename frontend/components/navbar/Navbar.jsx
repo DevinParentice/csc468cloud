@@ -31,7 +31,7 @@ export default function Navbar() {
 					</ul>
 				) : (
 					<button
-						className="user-button"
+						className={`user-button ${showMenu ? "button-clicked" : ""}`}
 						onClick={() => setShowMenu(!showMenu)}
 					>
 						<FaUser className="user-icon" /> {username}
@@ -40,7 +40,9 @@ export default function Navbar() {
 			</div>
 			{showMenu && (
 				<div className="user-menu">
-					<p tabIndex={0}>Start game</p>
+					<Link to="/game/create" onClick={() => setShowMenu(false)}>
+						Create Game
+					</Link>
 					<Link to={`/profile/${username}`} onClick={() => setShowMenu(false)}>
 						Profile
 					</Link>
@@ -49,7 +51,7 @@ export default function Navbar() {
 						onClick={() => {
 							localStorage.removeItem("authToken");
 							setUsername("");
-							window.location.reload();
+							window.location = "/";
 						}}
 					>
 						Log out

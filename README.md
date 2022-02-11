@@ -14,10 +14,9 @@ Install this project with node & yarn:
   yarn dev
 ```
 
-<p>If you do not have node installed, download it [here](https://nodejs.org/en/download/).
+If you do not have node installed, download it [here](https://nodejs.org/en/download/).
 <br />
 If you do not have yarn installed, run:
 ```bash
 npm install yarn
 ```
-</p>

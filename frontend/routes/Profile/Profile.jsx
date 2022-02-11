@@ -37,13 +37,14 @@ export default function Profile() {
 		}
 	}, []);
 
-	const matchHistory = user.matchHistory.length ? (
-		user.matchHistory.map((match) => {
-			<p>Match example</p>;
-		})
-	) : (
-		<p>No match history</p>
-	);
+	const matchHistory =
+		user.matchHistory && user.matchHistory.length ? (
+			user.matchHistory.map((match) => {
+				<p>Match example</p>;
+			})
+		) : (
+			<p>No match history</p>
+		);
 
 	return (
 		<div className="profile-container">

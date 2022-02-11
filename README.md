@@ -20,6 +20,16 @@ Clone the project
   git clone https://github.com/DevinParentice/csc468cloud.git
 ```
 
+Add the configuration file to backend/config.env (supplied or create your own):
+
+```bash
+  ATLAS_URI=YOUR_URI
+  PORT=5000
+
+  JWT_SECRET=YOUR_SECRET
+  JWT_EXPIRE=YOUR_EXPIRE_TIME
+```
+
 Go to the project directory
 
 ```bash

@@ -9,7 +9,7 @@ If you do not have node installed, download it [here](https://nodejs.org/en/down
 If you do not have yarn installed, run:
 
 ```bash
-npm install --global yarn
+  npm install --global yarn
 ```
 
 ## Run Locally
@@ -41,5 +41,6 @@ Start the frontend server
 In a new terminal window, start the backend server
 
 ```bash
- node server.js
+  cd backend/
+  node server.js
 ```

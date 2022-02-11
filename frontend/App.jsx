@@ -1,4 +1,5 @@
 import "./styles/App.css";
+import { Chessboard } from "react-chessboard";
 
 function App() {
 	return (
@@ -7,6 +8,7 @@ function App() {
 			<p>
 				Edit this page at: <code>frontend/App.jsx</code>
 			</p>
+			<Chessboard id="BoardExample" />
 		</div>
 	);
 }

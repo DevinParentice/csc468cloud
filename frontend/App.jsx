@@ -1,12 +1,11 @@
-import './App.css'
+import "./styles/App.css";
 
 function App() {
-
 	return (
 		<div className="App">
 			<h1>Chess Game</h1>
 		</div>
-	)
+	);
 }
 
-export default App
+export default App;

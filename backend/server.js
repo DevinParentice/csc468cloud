@@ -6,6 +6,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use(require("./routes/auth"));
+app.use("/profile", require("./routes/profile"));
 // get driver connection
 const connectDB = require("./db/conn");
 const errorHandler = require("./middleware/error");

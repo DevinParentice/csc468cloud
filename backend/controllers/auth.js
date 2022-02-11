@@ -5,10 +5,7 @@ exports.signup = async (req, res, next) => {
 	const { username, email, password } = req.body;
 	try {
 		const user = await User.create({ username, email, password });
-		res.status(201).json({
-			success: true,
-			user,
-		});
+		sendToken(user, 201, res);
 	} catch (error) {
 		next(error);
 	}
@@ -37,11 +34,19 @@ exports.login = async (req, res, next) => {
 			return next(new ErrorResponse("Invalid credentials", 401));
 		}
 
-		res.status(200).json({
-			success: true,
-			user,
-		});
+		sendToken(user, 200, res);
 	} catch (error) {
 		next(error);
 	}
+};
+
+const sendToken = (user, statusCode, res) => {
+	// Create token
+	const token = user.getSignedToken();
+
+	res.status(statusCode).json({
+		success: true,
+		username: user.username,
+		token,
+	});
 };

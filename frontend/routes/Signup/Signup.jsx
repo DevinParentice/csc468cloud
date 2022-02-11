@@ -1,16 +1,39 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Signup() {
+	let navigate = useNavigate();
 	const [username, setUsername] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [error, setError] = useState("");
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		console.log(username);
-		console.log(email);
-		console.log(password);
+		const config = {
+			header: {
+				"Content-Type": "appliction/json",
+			},
+		};
+
+		try {
+			const { data } = await axios.post(
+				"http://localhost:5000/user/signup",
+				{ username, email, password },
+				config
+			);
+
+			localStorage.setItem("authToken", data.token);
+
+			navigate("/");
+		} catch (error) {
+			setError(error.response.data.error);
+			setTimeout(() => {
+				setError("");
+			}, 5000);
+		}
 	};
 	return (
 		<div className="container">
@@ -19,29 +42,33 @@ export default function Signup() {
 					<h1>Chess Game</h1>
 					<p>Signup</p>
 				</div>
+				{error && <div className="error">{error}</div>}
 				<form method="POST" onSubmit={handleSubmit}>
+					<label htmlFor="username">Username</label>
 					<input
 						type="text"
 						name="username"
-						placeholder="Username"
 						value={username}
 						onChange={(e) => setUsername(e.target.value)}
 					/>
+					<label htmlFor="email">Email</label>
 					<input
 						type="email"
 						name="email"
-						placeholder="Email"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 					/>
+					<label htmlFor="password">Password</label>
 					<input
 						type="password"
 						name="password"
-						placeholder="Password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
 					/>
 					<button type="submit">Sign up</button>
+					<span>
+						Already have an account? <Link to="/login">Login</Link>
+					</span>
 				</form>
 			</div>
 			<div className="media"></div>

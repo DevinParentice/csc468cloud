@@ -1,11 +1,13 @@
 import "./Navbar.css";
 import { useState, useEffect } from "react";
+import { FaUser } from "react-icons/fa";
 import jwt_decode from "jwt-decode";
 
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
 	const [username, setUsername] = useState("");
+	const [showMenu, setShowMenu] = useState(false);
 
 	useEffect(() => {
 		if (localStorage.getItem("authToken")) {
@@ -28,9 +30,32 @@ export default function Navbar() {
 						</li>
 					</ul>
 				) : (
-					<p>Logged in as: {username}</p>
+					<button
+						className="user-button"
+						onClick={() => setShowMenu(!showMenu)}
+					>
+						<FaUser className="user-icon" /> {username}
+					</button>
 				)}
 			</div>
+			{showMenu && (
+				<div className="user-menu">
+					<p tabIndex={0}>Start game</p>
+					<Link to={`/profile/${username}`} onClick={() => setShowMenu(false)}>
+						Profile
+					</Link>
+					<p
+						tabIndex={0}
+						onClick={() => {
+							localStorage.removeItem("authToken");
+							setUsername("");
+							window.location.reload();
+						}}
+					>
+						Log out
+					</p>
+				</div>
+			)}
 		</nav>
 	);
 }

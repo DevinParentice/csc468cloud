@@ -4,7 +4,11 @@ const ErrorResponse = require("../utils/errorResponse");
 exports.signup = async (req, res, next) => {
 	const { username, email, password } = req.body;
 	try {
-		const user = await User.create({ username, email, password });
+		const user = await User.create({
+			username,
+			email,
+			password,
+		});
 		sendToken(user, 201, res);
 	} catch (error) {
 		next(error);
@@ -46,7 +50,6 @@ const sendToken = (user, statusCode, res) => {
 
 	res.status(statusCode).json({
 		success: true,
-		username: user.username,
 		token,
 	});
 };

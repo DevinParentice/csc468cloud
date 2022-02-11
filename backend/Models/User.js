@@ -24,6 +24,22 @@ const UserSchema = new mongoose.Schema(
 			minlength: 8,
 			select: false,
 		},
+		wins: {
+			type: Number,
+			default: 0,
+		},
+		losses: {
+			type: Number,
+			default: 0,
+		},
+		draws: {
+			type: Number,
+			default: 0,
+		},
+		matchHistory: {
+			type: Array,
+			default: [],
+		},
 	},
 	{
 		collection: "Users",

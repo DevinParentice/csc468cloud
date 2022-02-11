@@ -6,7 +6,7 @@ const errorHandler = (err, req, res, next) => {
 	error.message = err.message;
 
 	if (err.code === 11000) {
-		const message = "Duplicated Field Value Entered";
+		const message = "A user with this username or email already exists";
 		error = new ErrorResponse(message, 400);
 	}
 

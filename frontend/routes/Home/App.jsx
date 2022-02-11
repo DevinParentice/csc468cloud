@@ -6,7 +6,7 @@ function App() {
 		<div className="App">
 			<h1>Chess Game</h1>
 			<p>
-				Edit this page at: <code>frontend/App.jsx</code>
+				Edit this page at: <code>frontend/routes/Home/App.jsx</code>
 			</p>
 			<Board />
 		</div>

@@ -14,7 +14,21 @@ const errorHandler = require("./middleware/error");
 connectDB();
 
 app.use(errorHandler);
+const http = require("http").Server(app);
+const io = require("socket.io")(http, {
+	cors: {
+		origin: "*",
+		methods: ["GET", "POST", "PUT", "DELETE"],
+	},
+});
 
-app.listen(port, () => {
+http.listen(port, () => {
 	console.log(`Server is running on port: ${port}`);
+});
+
+io.on("connection", (socket) => {
+	console.log("New user connected");
+	socket.on("disconnect", () => {
+		console.log();
+	});
 });

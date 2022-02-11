@@ -1,4 +1,3 @@
-import Board from "../../components/Board";
 import "./App.css";
 
 function App() {
@@ -8,7 +7,6 @@ function App() {
 			<p>
 				Edit this page at: <code>frontend/routes/Home/App.jsx</code>
 			</p>
-			<Board />
 		</div>
 	);
 }

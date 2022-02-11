@@ -18,5 +18,5 @@ If you do not have node installed, download it [here](https://nodejs.org/en/down
 <br />
 If you do not have yarn installed, run:
 ```bash
-npm install yarn
+npm install --global yarn
 ```

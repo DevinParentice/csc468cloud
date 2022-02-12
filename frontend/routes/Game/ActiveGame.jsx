@@ -30,6 +30,11 @@ export default function ActiveGame({ socket }) {
 		return;
 	});
 
+	socket.on("roomFull", () => {
+		navigate("/game/create");
+		return;
+	});
+
 	return (
 		<div className="board-container">
 			<Board socket={socket} roomId={params.id} user={user} />

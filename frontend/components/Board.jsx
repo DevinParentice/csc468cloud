@@ -50,6 +50,7 @@ export default function Board({ socket, roomId, user }) {
 
 	socket.on("playerJoined", (gameState) => {
 		setGameState(gameState);
+		game.load(gameState.fen);
 		setFen(gameState.fen);
 		setBoardOrientation(gameState.players[user["username"]].color);
 	});

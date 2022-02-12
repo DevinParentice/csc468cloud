@@ -30,6 +30,10 @@ http.listen(port, () => {
 let games = {};
 io.on("connection", (socket) => {
 	socket.on("createRoom", (settings) => {
+		if (socket.rooms.size >= 2) {
+			socket.emit("roomRedirect", Array.from(socket.rooms)[1]);
+			return;
+		}
 		const roomId = crypto.randomBytes(5).toString("hex");
 		socket.join(roomId);
 		games[roomId] = {
@@ -52,27 +56,37 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("joinRoom", (newUser) => {
-		console.log(newUser);
+		// Check if room id is valid
 		if (!games[newUser.roomId]) {
 			socket.emit("roomNotFound");
 			return;
 		}
-		// Disable for testing purposes
-		// if (socket.rooms.length > 1) {
-		// 	socket.emit("roomRedirect", newUser.roomId);
-		// 	return;
-		// }
+
+		// Check if user is already has a game in progress, redirect if so
+		for (const [gameId, game] of Object.entries(games)) {
+			for (const [key] of Object.entries(game.players)) {
+				if (key === newUser.username && gameId !== newUser.roomId) {
+					socket.emit("roomRedirect", gameId);
+					return;
+				}
+			}
+		}
+
+		// Check if user is reconnecting to a game
 		if (games[newUser.roomId].players[newUser.username]) {
-			console.log("already in room");
 			games[newUser.roomId].players[newUser.username].id = socket.id;
 			socket.join(newUser.roomId);
 			socket.emit("playerJoined", games[newUser.roomId]);
 			return;
 		}
+
+		// Check to see if game already has two players
 		if (Object.keys(games[newUser.roomId].players).length === 2) {
 			socket.emit("roomFull");
 			return;
 		}
+
+		// Determine joining players color
 		let color;
 		for (let key in games[newUser.roomId].players) {
 			if (games[newUser.roomId].players[key].color === "black") {
@@ -81,7 +95,8 @@ io.on("connection", (socket) => {
 				color = "black";
 			}
 		}
-		console.log(typeof newUser.username);
+
+		// Add player to game
 		if (!games[newUser.roomId].players.hasOwnProperty(newUser.username)) {
 			games[newUser.roomId].players[newUser.username] = {
 				id: socket.id,
@@ -89,7 +104,6 @@ io.on("connection", (socket) => {
 			};
 		}
 		socket.join(newUser.roomId);
-		console.log(games[newUser.roomId]);
 		socket.emit("playerJoined", games[newUser.roomId]);
 	});
 

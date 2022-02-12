@@ -20,8 +20,14 @@ export default function ActiveGame({ socket }) {
 		roomId: params.id,
 	});
 
+	socket.on("roomRedirect", (room) => {
+		navigate(`/game/${room}`);
+		return;
+	});
+
 	socket.on("roomNotFound", () => {
 		navigate("/game/create");
+		return;
 	});
 
 	return (

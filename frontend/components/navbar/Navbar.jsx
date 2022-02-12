@@ -5,7 +5,7 @@ import jwt_decode from "jwt-decode";
 
 import { Link } from "react-router-dom";
 
-export default function Navbar() {
+export default function Navbar({ socket }) {
 	const [username, setUsername] = useState("");
 	const [showMenu, setShowMenu] = useState(false);
 

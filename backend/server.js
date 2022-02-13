@@ -11,6 +11,7 @@ app.use("/profile", require("./routes/profile"));
 const connectDB = require("./db/conn");
 const errorHandler = require("./middleware/error");
 const crypto = require("crypto");
+const axios = require("axios");
 
 connectDB();
 
@@ -117,12 +118,100 @@ io.on("connection", (socket) => {
 			};
 		}
 		socket.join(newUser.roomId);
-		socket.emit("playerJoined", games[newUser.roomId]);
+		io.to(newUser.roomId).emit("playerJoined", games[newUser.roomId]);
 	});
 
 	socket.on("moveMade", (move) => {
 		games[move.roomId].fen = move.fen;
+		games[move.roomId].turn += 1;
 		socket.broadcast.to(move.roomId).emit("opponentMoved", move);
+	});
+
+	socket.on("gameOver", async (result) => {
+		const config = {
+			header: {
+				"Content-Type": "application/json",
+			},
+		};
+		if (result.draw) {
+			let human = null;
+			if (result.playerOne === "Computer") {
+				human = result.playerTwo;
+			} else if (result.playerTwo === "Computer") {
+				human = result.playerOne;
+			}
+			if (human === null) {
+				try {
+					await axios.post(
+						"http://localhost:5000/user/edit",
+						{ username: human, toEdit: { $inc: { draws: 1 } } },
+						config
+					);
+				} catch (err) {
+					console.error(err.message);
+				}
+			} else {
+				try {
+					await axios.post(
+						"http://localhost:5000/user/edit",
+						{ username: result.playerOne, toEdit: { $inc: { draws: 1 } } },
+						config
+					);
+				} catch (err) {
+					console.error(err.message);
+				}
+				try {
+					await axios.post(
+						"http://localhost:5000/user/edit",
+						{ username: result.playerTwo, toEdit: { $inc: { draws: 1 } } },
+						config
+					);
+				} catch (err) {
+					console.error(err.message);
+				}
+			}
+		} else {
+			if (result.winner === "Computer") {
+				try {
+					await axios.post(
+						"http://localhost:5000/user/edit",
+						{ username: result.loser, toEdit: { $inc: { losses: 1 } } },
+						config
+					);
+				} catch (err) {
+					console.error(err.message);
+				}
+			} else if (result.loser === "Computer") {
+				try {
+					await axios.post(
+						"http://localhost:5000/user/edit",
+						{ username: result.winner, toEdit: { $inc: { wins: 1 } } },
+						config
+					);
+				} catch (err) {
+					console.error(err.message);
+				}
+			} else {
+				try {
+					await axios.post(
+						"http://localhost:5000/user/edit",
+						{ username: result.winner, toEdit: { $inc: { wins: 1 } } },
+						config
+					);
+				} catch (err) {
+					console.error(err.message);
+				}
+				try {
+					await axios.post(
+						"http://localhost:5000/user/edit",
+						{ username: result.loser, toEdit: { $inc: { losses: 1 } } },
+						config
+					);
+				} catch (err) {
+					console.error(err.message);
+				}
+			}
+		}
 	});
 
 	socket.on("disconnect", () => {

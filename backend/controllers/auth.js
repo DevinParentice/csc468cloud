@@ -44,6 +44,23 @@ exports.login = async (req, res, next) => {
 	}
 };
 
+exports.edit = async (req, res, next) => {
+	const { username, toEdit } = req.body;
+
+	try {
+		const user = await User.findOneAndUpdate({ username }, toEdit, {
+			new: true,
+		});
+
+		res.status(200).json({
+			success: true,
+			user,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
 const sendToken = (user, statusCode, res) => {
 	// Create token
 	const token = user.getSignedToken();

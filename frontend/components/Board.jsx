@@ -2,11 +2,10 @@ import { Chess } from "chess.js";
 
 import { Chessboard } from "react-chessboard";
 import { useState } from "react";
-import { Game, aiMove, getFen } from "js-chess-engine";
+import { aiMove } from "js-chess-engine";
 
 export default function Board({ socket, roomId, user }) {
 	const [game, setGame] = useState(new Chess());
-	const [aiGame, setAiGame] = useState(new Game());
 	const [gameState, setGameState] = useState({});
 	const [fen, setFen] = useState(game.fen());
 	const [opponent, setOpponent] = useState("");
@@ -71,6 +70,50 @@ export default function Board({ socket, roomId, user }) {
 		});
 	}
 
+	function handleGameOver() {
+		let payload;
+		let winner;
+		let loser;
+		if (
+			game.in_draw() ||
+			game.in_stalemate() ||
+			game.in_threefold_repetition() ||
+			game.insufficient_material()
+		) {
+			payload = {
+				game: gameState,
+				draw: true,
+				playerOne: user.username,
+				playerTwo: opponent,
+			};
+		} else {
+			if (game.turn() === "w") {
+				for (const [key] of Object.entries(gameState.players)) {
+					if (gameState.players[key].color === "black") {
+						winner = key;
+					} else {
+						loser = key;
+					}
+				}
+			} else {
+				for (const [key] of Object.entries(gameState.players)) {
+					if (gameState.players[key].color === "white") {
+						winner = key;
+					} else {
+						loser = key;
+					}
+				}
+			}
+			payload = {
+				game: gameState,
+				draw: false,
+				winner,
+				loser,
+			};
+			socket.emit("gameOver", payload);
+		}
+	}
+
 	function onDrop(sourceSquare, targetSquare) {
 		let move = null;
 		if (game.turn() !== gameState.players[user["username"]].color.charAt(0))
@@ -85,7 +128,11 @@ export default function Board({ socket, roomId, user }) {
 		if (move === null) return false; // illegal move
 		if (gameState.vsComputer === true) {
 			setFen(game.fen());
-			makeComputerMove(gameState);
+			if (game.game_over()) {
+				handleGameOver();
+			} else {
+				makeComputerMove(gameState);
+			}
 		} else {
 			socket.emit("moveMade", {
 				roomId,
@@ -93,6 +140,9 @@ export default function Board({ socket, roomId, user }) {
 				move: game.history()[game.history().length - 1],
 			});
 			setFen(game.fen());
+			if (game.game_over()) {
+				handleGameOver();
+			}
 		}
 		return true;
 	}
@@ -113,6 +163,9 @@ export default function Board({ socket, roomId, user }) {
 			});
 		}
 		setFen(game.fen());
+		if (game.game_over()) {
+			handleGameOver();
+		}
 	}
 
 	socket.on("playerJoined", (gameState) => {

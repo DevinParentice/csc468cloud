@@ -85,7 +85,7 @@ export default function Board({ socket, roomId, user }) {
 		if (move === null) return false; // illegal move
 		if (gameState.vsComputer === true) {
 			setFen(game.fen());
-			makeComputerMove();
+			makeComputerMove(gameState);
 		} else {
 			socket.emit("moveMade", {
 				roomId,
@@ -97,11 +97,11 @@ export default function Board({ socket, roomId, user }) {
 		return true;
 	}
 
-	function makeComputerMove() {
+	function makeComputerMove(gameState) {
 		let move = null;
 		const chosenMove = aiMove(
 			game.fen(),
-			gameState.players["Opponent"].difficulty
+			gameState.players["Computer"]["difficulty"]
 		);
 		for (const [fromSquare, toSquare] of Object.entries(chosenMove)) {
 			safeGameMutate((game) => {
@@ -130,7 +130,7 @@ export default function Board({ socket, roomId, user }) {
 			gameState.vsComputer === true &&
 			gameState.players["Computer"].color.charAt(0) === game.turn()
 		) {
-			makeComputerMove();
+			makeComputerMove(gameState);
 		}
 	});
 

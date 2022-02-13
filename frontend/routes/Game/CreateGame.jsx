@@ -6,7 +6,7 @@ export default function CreateGame({ socket }) {
 	const [color, setColor] = useState("white");
 	const [user, setUser] = useState(null);
 	const [opponent, setOpponent] = useState("player");
-	const [difficulty, setDifficulty] = useState("easy");
+	const [difficulty, setDifficulty] = useState(0);
 	const navigate = useNavigate();
 	useEffect(() => {
 		if (!localStorage.getItem("authToken")) {

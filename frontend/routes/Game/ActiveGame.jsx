@@ -16,7 +16,6 @@ export default function ActiveGame({ socket }) {
 	);
 
 	useEffect(() => {
-		console.log("testtttttttt");
 		socket.emit("joinRoom", {
 			username: user.username,
 			roomId: params.id,

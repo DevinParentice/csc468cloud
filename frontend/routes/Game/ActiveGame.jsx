@@ -15,10 +15,13 @@ export default function ActiveGame({ socket }) {
 		jwt_decode(localStorage.getItem("authToken"))
 	);
 
-	socket.emit("joinRoom", {
-		username: user.username,
-		roomId: params.id,
-	});
+	useEffect(() => {
+		console.log("testtttttttt");
+		socket.emit("joinRoom", {
+			username: user.username,
+			roomId: params.id,
+		});
+	}, []);
 
 	socket.on("roomRedirect", (room) => {
 		navigate(`/game/${room}`);

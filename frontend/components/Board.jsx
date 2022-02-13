@@ -2,9 +2,11 @@ import { Chess } from "chess.js";
 
 import { Chessboard } from "react-chessboard";
 import { useState } from "react";
+import { Game, aiMove, getFen } from "js-chess-engine";
 
 export default function Board({ socket, roomId, user }) {
 	const [game, setGame] = useState(new Chess());
+	const [aiGame, setAiGame] = useState(new Game());
 	const [gameState, setGameState] = useState({});
 	const [fen, setFen] = useState(game.fen());
 	const [opponent, setOpponent] = useState("");
@@ -81,13 +83,36 @@ export default function Board({ socket, roomId, user }) {
 			});
 		});
 		if (move === null) return false; // illegal move
-		socket.emit("moveMade", {
-			roomId,
-			fen: game.fen(),
-			move: game.history()[game.history().length - 1],
-		});
-		setFen(game.fen());
+		if (gameState.vsComputer === true) {
+			setFen(game.fen());
+			makeComputerMove();
+		} else {
+			socket.emit("moveMade", {
+				roomId,
+				fen: game.fen(),
+				move: game.history()[game.history().length - 1],
+			});
+			setFen(game.fen());
+		}
 		return true;
+	}
+
+	function makeComputerMove() {
+		let move = null;
+		const chosenMove = aiMove(
+			game.fen(),
+			gameState.players["Opponent"].difficulty
+		);
+		for (const [fromSquare, toSquare] of Object.entries(chosenMove)) {
+			safeGameMutate((game) => {
+				move = game.move({
+					from: fromSquare.toLowerCase(),
+					to: toSquare.toLowerCase(),
+					promotion: "q", // always promote to a queen for example simplicity
+				});
+			});
+		}
+		setFen(game.fen());
 	}
 
 	socket.on("playerJoined", (gameState) => {
@@ -100,6 +125,13 @@ export default function Board({ socket, roomId, user }) {
 		game.load(gameState.fen);
 		setFen(gameState.fen);
 		setBoardOrientation(gameState.players[user["username"]].color);
+		if (
+			gameState &&
+			gameState.vsComputer === true &&
+			gameState.players["Computer"].color.charAt(0) === game.turn()
+		) {
+			makeComputerMove();
+		}
 	});
 
 	socket.on("opponentMoved", (move) => {

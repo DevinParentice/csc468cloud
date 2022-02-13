@@ -40,6 +40,7 @@ io.on("connection", (socket) => {
 			players: {},
 			turn: 0,
 			winner: null,
+			vsComputer: settings.opponent === "computer",
 			timeControl: settings.timeControl,
 			fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
 		};
@@ -52,6 +53,18 @@ io.on("connection", (socket) => {
 						: "black"
 					: settings.color,
 		};
+
+		if (settings.opponent === "computer") {
+			games[roomId].players["Computer"] = {
+				id: "computer",
+				color:
+					games[roomId].players[settings.username].color === "white"
+						? "black"
+						: "white",
+				difficulty: settings.difficulty,
+			};
+		}
+
 		socket.emit("roomId", roomId);
 	});
 

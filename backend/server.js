@@ -29,44 +29,78 @@ http.listen(port, () => {
 });
 
 let games = {};
+let searchingPlayers = [];
 io.on("connection", (socket) => {
 	socket.on("createRoom", (settings) => {
 		if (socket.rooms.size >= 2) {
 			socket.emit("roomRedirect", Array.from(socket.rooms)[1]);
 			return;
 		}
-		const roomId = crypto.randomBytes(5).toString("hex");
-		socket.join(roomId);
-		games[roomId] = {
-			players: {},
-			turn: 0,
-			winner: null,
-			vsComputer: settings.opponent === "computer",
-			timeControl: settings.timeControl,
-			fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-		};
-		games[roomId].players[settings.username] = {
-			id: socket.id,
-			color:
-				settings.color === "random"
-					? Math.random() > 0.5
-						? "white"
-						: "black"
-					: settings.color,
-		};
-
-		if (settings.opponent === "computer") {
-			games[roomId].players["Computer"] = {
-				id: "computer",
-				color:
-					games[roomId].players[settings.username].color === "white"
-						? "black"
-						: "white",
-				difficulty: settings.difficulty,
+		if (settings.gameType === "public") {
+			if (searchingPlayers.length === 0) {
+				searchingPlayers.push({ username: settings.username, socket });
+				socket.emit("findingOpponent");
+			} else {
+				const roomId = crypto.randomBytes(5).toString("hex");
+				socket.join(roomId);
+				const secondPlayer = searchingPlayers.pop();
+				secondPlayer.socket.join(roomId);
+				games[roomId] = {
+					players: {},
+					turn: 0,
+					winner: null,
+					vsComputer: settings.opponent === "computer",
+					timeControl: settings.timeControl,
+					fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+				};
+				games[roomId].players[settings.username] = {
+					id: socket.id,
+					color: Math.random() > 0.5 ? "white" : "black",
+				};
+				games[roomId].players[secondPlayer.username] = {
+					id: secondPlayer.socket.id,
+					color:
+						games[roomId].players[settings.username].color === "white"
+							? "black"
+							: "white",
+				};
+				socket.emit("roomId", roomId);
+				secondPlayer.socket.emit("roomId", roomId);
+			}
+		} else {
+			const roomId = crypto.randomBytes(5).toString("hex");
+			socket.join(roomId);
+			games[roomId] = {
+				players: {},
+				turn: 0,
+				winner: null,
+				vsComputer: settings.opponent === "computer",
+				timeControl: settings.timeControl,
+				fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
 			};
-		}
+			games[roomId].players[settings.username] = {
+				id: socket.id,
+				color:
+					settings.color === "random"
+						? Math.random() > 0.5
+							? "white"
+							: "black"
+						: settings.color,
+			};
 
-		socket.emit("roomId", roomId);
+			if (settings.opponent === "computer") {
+				games[roomId].players["Computer"] = {
+					id: "computer",
+					color:
+						games[roomId].players[settings.username].color === "white"
+							? "black"
+							: "white",
+					difficulty: settings.difficulty,
+				};
+			}
+
+			socket.emit("roomId", roomId);
+		}
 	});
 
 	socket.on("joinRoom", (newUser) => {
